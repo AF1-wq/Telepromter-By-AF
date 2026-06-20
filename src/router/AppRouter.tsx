@@ -9,7 +9,7 @@ export const AppRouter: React.FC = () => {
   useTheme(); // Initialize theme
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Telepromter-By-AF/">
       <NavigationMenu />
       <Routes>
         <Route path="/" element={<DashboardView />} />
