@@ -1,4 +1,4 @@
-export const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+export const GROQ_API_URL = 'http://localhost:3001/api/chat';
 export const MODEL_NAME = 'llama-3.1-8b-instant';
 
 export interface GroqResponse {
@@ -10,23 +10,15 @@ export interface GroqResponse {
 }
 
 export const callGroqApi = async (prompt: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> => {
-  const apiKey = localStorage.getItem('groq_api_key');
-  if (!apiKey) {
-    throw new Error('API Key no configurada. Por favor, añádela en la Configuración.');
-  }
-
   const response = await fetch(GROQ_API_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       model: MODEL_NAME,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
+      prompt,
+      systemPrompt,
       temperature: 0.7,
       max_tokens: 4000,
     })
