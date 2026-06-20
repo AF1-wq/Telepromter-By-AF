@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/Telepromter-By-AF/sw.js', { scope: '/Telepromter-By-AF/' })})}
