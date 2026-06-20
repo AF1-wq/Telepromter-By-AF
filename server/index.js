@@ -32,17 +32,25 @@ app.post('/api/chat', async (req, res) => {
       })
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = {};
+    }
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: data.error?.message || 'Error from Groq API' });
+      if (response.status === 429 || response.status >= 500) {
+        return res.status(response.status).json({ error: "La IA está procesando peticiones muy rápido. Por favor, espera un par de segundos y vuelve a intentar." });
+      }
+      return res.status(response.status).json({ error: data.error?.message || data.error || 'Error from Groq API' });
     }
 
     res.json(data);
 
   } catch (error) {
     console.error('Error forwarding to Groq:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "La IA está procesando peticiones muy rápido. Por favor, espera un par de segundos y vuelve a intentar." });
   }
 });
 

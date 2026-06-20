@@ -10,23 +10,30 @@ export interface GroqResponse {
 }
 
 export const callGroqApi = async (prompt: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> => {
-  const response = await fetch(GROQ_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      prompt,
-      systemPrompt,
-      temperature: 0.7,
-      max_tokens: 4000,
-    })
-  });
+  let response;
+  try {
+    response = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        prompt,
+        systemPrompt,
+        temperature: 0.7,
+        max_tokens: 4000,
+      })
+    });
+  } catch (error) {
+    // Si fetch falla completamente (ej. CORS, red caída, proxy muerto)
+    throw new Error('La IA está procesando peticiones muy rápido. Por favor, espera un par de segundos y vuelve a intentar.');
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error?.message || 'Error de conexión con la API de Groq');
+    const errorMessage = typeof errorData.error === 'string' ? errorData.error : errorData.error?.message;
+    throw new Error(errorMessage || 'Error de conexión con la API de Groq');
   }
 
   const data: GroqResponse = await response.json();
