@@ -481,7 +481,11 @@ export const EditorView: React.FC = () => {
               ))}
               {isProcessingAi && (
                 <div className="chat-message ai processing">
-                  <div className="message-bubble">Escribiendo...</div>
+                  <div className="message-bubble loading-bubble">
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
