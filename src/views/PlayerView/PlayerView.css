@@ -1,0 +1,327 @@
+.player-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--color-bg-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.prompter-text-area {
+  flex: 1;
+  padding: 50vh 15vw; /* Mucho padding para que el texto inicie y termine fuera de la pantalla */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  
+  /* Esconder scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  /* Efecto de degradado arriba y abajo */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.prompter-text-area::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Marker Zone */
+.focus-marker {
+  position: absolute;
+  top: 33%; /* Tercio superior */
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  pointer-events: none; /* No interceptar clicks o scroll */
+  z-index: 5;
+  opacity: 0.6;
+}
+
+.focus-line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.2; /* Muy tenue para no molestar la lectura */
+}
+
+.focus-triangle {
+  width: 0; 
+  height: 0; 
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+
+.focus-triangle.left {
+  border-left: 20px solid var(--color-accent);
+}
+
+.focus-triangle.right {
+  border-right: 20px solid var(--color-accent);
+}
+
+.prompter-text {
+  /* font-size is set inline by React state */
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  text-align: left;
+  max-width: 900px;
+  white-space: pre-wrap;
+}
+
+.controls-bar-glass {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: max-content;
+  max-width: 90vw;
+  z-index: 10;
+}
+
+.player-container:hover .controls-bar-glass {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.center-controls {
+  gap: 1.5rem;
+}
+
+/* Stepper (Tamaño de fuente y Velocidad) */
+.stepper-control {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50px;
+  padding: 0.25rem;
+}
+
+.stepper-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+}
+
+.stepper-btn:active {
+  transform: scale(0.95);
+}
+
+.stepper-value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  min-width: 3rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Play / Pause button */
+.play-pause-btn {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  border: none;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.play-pause-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 4px; /* Centrado óptico para el triángulo de play */
+}
+
+.play-pause-btn.playing svg {
+  margin-left: 0;
+}
+
+.play-pause-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.play-pause-btn:active {
+  transform: scale(0.95);
+}
+
+/* Icon Button (Salir) */
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+}
+
+.icon-btn.active {
+  color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.countdown-number {
+  font-size: 15vw;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0; }
+  20% { transform: scale(1.1); opacity: 1; }
+  80% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(0.9); opacity: 0; }
+}
+
+/* HUD Overlay */
+.hud-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  pointer-events: none;
+  animation: hudFadeIn 0.2s ease-out forwards, hudFadeOut 0.3s ease-in 1.2s forwards;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.hud-text {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes hudFadeOut {
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to { opacity: 0; transform: translate(-50%, -60%); }
+}
+
+/* Reading Modes */
+.player-container.mode-pro {
+  background-color: #000000 !important;
+}
+
+.player-container.mode-pro .prompter-text,
+.player-container.mode-pro .prompter-text * {
+  color: #FFFF00 !important;
+}
+
+.focus-line-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.85) 35%, transparent 35%, transparent 65%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.85) 100%);
+  z-index: 5;
+}
+
+[data-theme='light'] .focus-line-overlay {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 35%, transparent 35%, transparent 65%, rgba(255,255,255,0.85) 65%, rgba(255,255,255,0.85) 100%);
+}
+
+.player-container.mode-accessibility .prompter-text,
+.player-container.mode-accessibility .prompter-text * {
+  letter-spacing: 2px !important;
+  line-height: 2.5 !important;
+}
+
+/* Bionic Reading */
+.bionic-bold {
+  font-weight: 800;
+  opacity: 1;
+}
+
+.player-container.bionic-active .prompter-text * {
+  letter-spacing: 0.05em;
+}

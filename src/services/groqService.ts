@@ -1,0 +1,70 @@
+export const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+export const MODEL_NAME = 'llama-3.1-8b-instant';
+
+export interface GroqResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+export const callGroqApi = async (prompt: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> => {
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error('API Key no configurada en las variables de entorno');
+  }
+
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: MODEL_NAME,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000,
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || 'Error de conexión con la API de Groq');
+  }
+
+  const data: GroqResponse = await response.json();
+  return data.choices[0]?.message?.content || '';
+};
+
+export const improveCadence = async (text: string): Promise<string> => {
+  return callGroqApi(
+    text,
+    'You are a teleprompter script editor. Improve the cadence and flow of the text. Separate into short paragraphs. Output ONLY the improved text.'
+  );
+};
+
+export const translateToEnglish = async (text: string): Promise<string> => {
+  return callGroqApi(
+    text,
+    "You are a professional translator. You MUST translate the user's text into natural, fluent English suitable for a teleprompter. Output ONLY the English translation. DO NOT add conversational filler."
+  );
+};
+
+export const englishPronunciationCoach = async (text: string): Promise<string> => {
+  return callGroqApi(
+    text,
+    'You are a diction coach. Keep the text in its original language, but insert phonetic pronunciation in brackets [ ] immediately after difficult words. Return ONLY the modified text.'
+  );
+};
+
+export const chatWithAi = async (text: string, promptText: string): Promise<string> => {
+  return callGroqApi(
+    `Texto actual del editor:\n"""\n${text}\n"""\n\nComando del usuario: ${promptText}\n\nResponde únicamente con el texto modificado según el comando, sin texto introductorio ni explicaciones adicionales, listo para ser insertado en el editor.`,
+    'Eres un asistente experto en edición de guiones de teleprompter.'
+  );
+};
