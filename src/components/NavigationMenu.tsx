@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useReadingMode } from '../hooks/useReadingMode';
 import { useBionicMode } from '../hooks/useBionicMode';
 import { LegalModal } from './LegalModal';
+import { SettingsModal } from './SettingsModal';
 import './NavigationMenu.css';
 
 export const NavigationMenu: React.FC = () => {
@@ -14,6 +15,7 @@ export const NavigationMenu: React.FC = () => {
   const { mode, setMode } = useReadingMode();
   const { bionicMode, setBionicMode } = useBionicMode();
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -73,6 +75,13 @@ export const NavigationMenu: React.FC = () => {
             </button>
           </div>
 
+          <div className="nav-section">
+            <h3>Configuración</h3>
+            <button className="nav-btn" onClick={() => setIsSettingsModalOpen(true)}>
+              API Key (IA)
+            </button>
+          </div>
+
           {location.pathname.startsWith('/player') && (
             <div className="nav-section">
               <h3>Modo de Lectura</h3>
@@ -104,6 +113,7 @@ export const NavigationMenu: React.FC = () => {
       </div>
 
       <LegalModal isOpen={isLegalModalOpen} onClose={() => setIsLegalModalOpen(false)} />
+      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
     </>
   );
 };

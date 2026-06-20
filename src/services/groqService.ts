@@ -10,9 +10,9 @@ export interface GroqResponse {
 }
 
 export const callGroqApi = async (prompt: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> => {
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  const apiKey = localStorage.getItem('groq_api_key');
   if (!apiKey) {
-    throw new Error('API Key no configurada en las variables de entorno');
+    throw new Error('API Key no configurada. Por favor, añádela en la Configuración.');
   }
 
   const response = await fetch(GROQ_API_URL, {
