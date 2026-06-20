@@ -1,4 +1,4 @@
-export const GROQ_API_URL = 'http://localhost:3001/api/chat';
+export const GROQ_API_URL = 'https://telepromter-by-af.onrender.com/api/chat';
 export const MODEL_NAME = 'llama-3.1-8b-instant';
 
 export interface GroqResponse {
