@@ -11,6 +11,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/', (req, res) => res.status(200).send('Servidor activo'));
+
 app.post('/api/chat', async (req, res) => {
   try {
     const { prompt, systemPrompt, model, temperature, max_tokens } = req.body;
