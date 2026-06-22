@@ -1,17 +1,17 @@
 /* Default: Dark Theme */
 :root {
-  /* Dark Mode Colors (Strict Minimalist Apple-like) */
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #1C1C1E;
-  --color-text-primary: #F5F5F7;
-  --color-text-secondary: #8E8E93;
+  /* Dark Mode Colors (macOS dark theme) */
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #16161a;
+  --color-text-primary: rgba(255, 255, 255, 0.9);
+  --color-text-secondary: rgba(255, 255, 255, 0.65);
   
   /* Minimalist Accent (Apple System Blue) ONLY for buttons/active states */
-  --color-accent: #0A84FF;
-  --color-accent-hover: #007AFF;
+  --color-accent: #6495FF;
+  --color-accent-hover: #4b78e6;
   
   /* Shared values */
-  --border-radius-base: 16px;
+  --border-radius-base: 12px;
 
   /* Typography */
   --font-family-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;

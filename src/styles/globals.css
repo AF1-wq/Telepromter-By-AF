@@ -9,7 +9,8 @@
 
 body {
   font-family: var(--font-family-base);
-  background-color: var(--color-bg-primary);
+  background: linear-gradient(to bottom right, #1a1a2e, #16213e, #0f3460);
+  background-attachment: fixed;
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

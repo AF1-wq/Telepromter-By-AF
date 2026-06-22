@@ -483,12 +483,6 @@ export const PlayerView: React.FC = () => {
     <div className={`player-container mode-${mode} ${bionicMode ? 'bionic-active' : ''} ${isPlaying ? 'is-playing' : ''}`}>
       {mode === 'focus' && <div className="focus-line-overlay" />}
       
-      {/* macOS Traffic Lights */}
-      <div className="macos-traffic-lights" style={{ position: 'absolute', top: '1.5rem', left: '1.5rem', display: 'flex', gap: '8px', zIndex: 100 }}>
-        <button className="macos-btn" onClick={() => navigate('/')} style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FF5F57', border: 'none', cursor: 'pointer' }} title="Cerrar"></button>
-        <button className="macos-btn" style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FEBC2E', border: 'none', cursor: 'pointer' }} title="Minimizar"></button>
-        <button className="macos-btn" onClick={handleTogglePiP} style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#28C840', border: 'none', cursor: 'pointer' }} title="Maximizar / Flotante"></button>
-      </div>
       {/* Focus Marker */}
       <div className="focus-marker">
         <div className="focus-triangle left"></div>
