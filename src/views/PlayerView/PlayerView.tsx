@@ -216,8 +216,6 @@ export const PlayerView: React.FC = () => {
     }
   };
 
-  const handleIncreaseSpeed = () => setSpeed(prev => Math.min(prev + 1, 10));
-  const handleDecreaseSpeed = () => setSpeed(prev => Math.max(prev - 1, 1));
 
   // HUD clear timer
   useEffect(() => {
