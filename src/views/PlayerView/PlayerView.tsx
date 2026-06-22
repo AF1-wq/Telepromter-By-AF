@@ -19,6 +19,35 @@ export const PlayerView: React.FC = () => {
   const [isMirrored, setIsMirrored] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [hudMessage, setHudMessage] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  const wordCount = useMemo(() => {
+    return content.replace(/<[^>]*>?/gm, '').trim().split(/\s+/).filter(w => w.length > 0).length || 0;
+  }, [content]);
+
+  const estimatedTime = useMemo(() => {
+    // Estimación dinámica: speed 1 -> 50 wpm, speed 5 -> 150 wpm, speed 10 -> 275 wpm
+    const wpm = 25 + speed * 25;
+    const minutes = wordCount / wpm;
+    return Math.ceil(minutes * 60);
+  }, [wordCount, speed]);
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds < 0) return '00:00';
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  useEffect(() => {
+    let interval: any;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
@@ -155,6 +184,28 @@ export const PlayerView: React.FC = () => {
     }
   };
 
+  const handleRestart = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+    setElapsedTime(0);
+    if (isPlayingOrCountdown) {
+      setIsPlaying(false);
+      setCountdown(null);
+    }
+  };
+
+  useEffect(() => {
+    const onPipPlayPause = () => handlePlayPause();
+    const onPipRestart = () => handleRestart();
+    window.addEventListener('pip-play-pause-toggle', onPipPlayPause);
+    window.addEventListener('pip-restart', onPipRestart);
+    return () => {
+      window.removeEventListener('pip-play-pause-toggle', onPipPlayPause);
+      window.removeEventListener('pip-restart', onPipRestart);
+    };
+  }, [isPlayingOrCountdown]);
+
   // Handle user interaction to pause the animation
   const handleUserInteraction = () => {
     if (isPlayingOrCountdown) {
@@ -236,8 +287,32 @@ export const PlayerView: React.FC = () => {
           .prompter-text-area::-webkit-scrollbar { display: none; }
           .focus-line-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.8) 35%, transparent 35%, transparent 65%, rgba(0,0,0,0.8) 65%, rgba(0,0,0,0.8) 100%); z-index: 5; }
           [data-theme='light'] .focus-line-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 35%, transparent 35%, transparent 65%, rgba(255,255,255,0.8) 65%, rgba(255,255,255,0.8) 100%); }
+          .pip-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 50px; opacity: 0; transition: opacity 0.3s; z-index: 100; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+          body:hover .pip-controls { opacity: 1; }
+          body.is-playing .pip-controls { opacity: 0.2; }
+          body.is-playing .pip-controls:hover { opacity: 1; }
+          .pip-controls button { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; transition: all 0.2s; }
+          .pip-controls button:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
+          .pip-play-btn { background: white !important; color: black !important; }
+          .pip-play-btn:hover { box-shadow: 0 0 15px rgba(255,255,255,0.3); }
         `;
         pipWindow.document.head.appendChild(customStyle);
+
+        // Add controls
+        const pipControls = document.createElement('div');
+        pipControls.className = 'pip-controls';
+        pipControls.innerHTML = '<button id="pip-restart" title="Reiniciar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button id="pip-play" class="pip-play-btn" title="Play/Pausa"></button><button id="pip-close" title="Cerrar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>';
+        pipWindow.document.body.appendChild(pipControls);
+
+        pipWindow.document.getElementById('pip-restart')?.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('pip-restart'));
+        });
+        pipWindow.document.getElementById('pip-play')?.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('pip-play-pause-toggle'));
+        });
+        pipWindow.document.getElementById('pip-close')?.addEventListener('click', () => {
+          pipWindow.close();
+        });
 
         // Si es focus mode, añadir el overlay al body de PiP
         if (mode === 'focus') {
@@ -266,6 +341,21 @@ export const PlayerView: React.FC = () => {
   useEffect(() => {
     if (pipWindowRef.current) {
       pipWindowRef.current.document.body.className = `mode-${mode}`;
+      if (isPlaying) {
+        pipWindowRef.current.document.body.classList.add('is-playing');
+      } else {
+        pipWindowRef.current.document.body.classList.remove('is-playing');
+      }
+      
+      const btn = pipWindowRef.current.document.getElementById('pip-play');
+      if (btn) {
+        if (isPlayingOrCountdown) {
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+        } else {
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        }
+      }
+
       if (mode === 'focus') {
         let overlay = pipWindowRef.current.document.querySelector('.focus-line-overlay');
         if (!overlay) {
@@ -278,7 +368,7 @@ export const PlayerView: React.FC = () => {
         if (overlay) overlay.remove();
       }
     }
-  }, [mode]);
+  }, [mode, isPlaying, isPlayingOrCountdown]);
 
   // Hardware Remote Control
   useEffect(() => {
@@ -392,7 +482,7 @@ export const PlayerView: React.FC = () => {
   }, [bionicMode, content]);
 
   return (
-    <div className={`player-container mode-${mode} ${bionicMode ? 'bionic-active' : ''}`}>
+    <div className={`player-container mode-${mode} ${bionicMode ? 'bionic-active' : ''} ${isPlaying ? 'is-playing' : ''}`}>
       {mode === 'focus' && <div className="focus-line-overlay" />}
       {/* Focus Marker */}
       <div className="focus-marker">
@@ -441,6 +531,16 @@ export const PlayerView: React.FC = () => {
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
           </button>
+          <button className="icon-btn" onClick={handleRestart} title="Reiniciar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+          </button>
+          
+          <div className="timer-display" style={{ marginLeft: '0.5rem', color: 'var(--color-text-secondary)', fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontFamily: 'monospace', fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
+            <span style={{color: 'var(--color-text-primary)'}}>{formatTime(elapsedTime)}</span> / {formatTime(estimatedTime)}
+          </div>
         </div>
 
         <div className="control-group center-controls">

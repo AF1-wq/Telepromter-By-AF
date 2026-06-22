@@ -335,8 +335,9 @@ export const EditorView: React.FC = () => {
   // Cálculo de palabras basado en el HTML actual convertido a texto plano
   const currentPlainText = currentContentRef.current.replace(/<[^>]*>?/gm, '');
   const wordCount = currentPlainText.trim().split(/\s+/).filter(w => w.length > 0).length || 0;
-  const estimatedMin = Math.floor(wordCount / 130);
-  const estimatedSec = Math.floor(((wordCount / 130) * 60) % 60).toString().padStart(2, '0');
+  // Usamos una velocidad promedio (speed 5 -> ~150 wpm) para la estimación en el editor
+  const estimatedMin = Math.floor(wordCount / 150);
+  const estimatedSec = Math.floor(((wordCount / 150) * 60) % 60).toString().padStart(2, '0');
 
   return (
     <div 

@@ -102,6 +102,18 @@
   transform: translate(-50%, 0);
 }
 
+.player-container.is-playing .controls-bar-glass {
+  opacity: 0;
+}
+
+.player-container.is-playing:hover .controls-bar-glass {
+  opacity: 0.15;
+}
+
+.player-container.is-playing .controls-bar-glass:hover {
+  opacity: 1;
+}
+
 .control-group {
   display: flex;
   align-items: center;
