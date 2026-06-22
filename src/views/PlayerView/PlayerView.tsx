@@ -287,18 +287,16 @@ export const PlayerView: React.FC = () => {
           .prompter-text-area::-webkit-scrollbar { display: none; }
           .focus-line-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.8) 35%, transparent 35%, transparent 65%, rgba(0,0,0,0.8) 65%, rgba(0,0,0,0.8) 100%); z-index: 5; }
           [data-theme='light'] .focus-line-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 35%, transparent 35%, transparent 65%, rgba(255,255,255,0.8) 65%, rgba(255,255,255,0.8) 100%); }
-          body .controls-bar-glass { opacity: 0; }
-          body:hover .controls-bar-glass { opacity: 1; transform: translate(-50%, 0); }
-          body.is-playing .controls-bar-glass { opacity: 0; }
-          body.is-playing:hover .controls-bar-glass { opacity: 0.15; }
-          body.is-playing .controls-bar-glass:hover { opacity: 1; }
+          body .controls-bar-glass { opacity: 1 !important; transform: translateX(-50%) !important; bottom: 20px !important; }
+          body.is-playing .controls-bar-glass { opacity: 0.1 !important; }
+          body:hover .controls-bar-glass, body.is-playing:hover .controls-bar-glass { opacity: 1 !important; }
         `;
         pipWindow.document.head.appendChild(customStyle);
 
         // Add controls
         const pipControls = document.createElement('div');
         pipControls.className = 'controls-bar-glass';
-        pipControls.innerHTML = '<div class="control-group"><button id="pip-restart" class="icon-btn" title="Reiniciar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button id="pip-play" class="play-pause-btn" title="Play/Pausa"></button><button id="pip-close" class="icon-btn" title="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>';
+        pipControls.innerHTML = '<div class="control-group"><button id="pip-restart" class="icon-btn" title="Reiniciar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button id="pip-play" class="play-pause-btn" title="Play/Pausa"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button><button id="pip-close" class="icon-btn" title="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>';
         pipWindow.document.body.appendChild(pipControls);
 
         pipWindow.document.getElementById('pip-restart')?.addEventListener('click', () => {

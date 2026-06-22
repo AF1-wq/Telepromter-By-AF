@@ -18,13 +18,13 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose }) => {
         </div>
         <div className="legal-modal-body">
           <p>
-            <strong>Privacidad y Almacenamiento:</strong> "Esta aplicación no utiliza bases de datos en la nube. Todos sus guiones y configuraciones se guardan físicamente en la memoria de su navegador actual (LocalStorage). Si usted borra el caché de su navegador, utiliza el modo Incógnito o cambia de dispositivo, sus datos no se sincronizarán y se perderán. Nosotros no recopilamos, leemos ni tenemos acceso a su información."
+            <strong>1. Transparencia y Privacidad por Diseño:</strong> En Teleprompter by AF, tu privacidad es nuestra prioridad absoluta. No almacenamos, no guardamos y no tenemos bases de datos con tus guiones.
           </p>
           <p>
-            <strong>Uso de IA:</strong> "El Asistente de IA utiliza servicios de terceros (API de Groq/Llama). Al usar estas funciones, el texto seleccionado se procesa temporalmente de forma externa. La IA puede generar resultados inexactos."
+            <strong>2. Inteligencia Artificial:</strong> El texto se envía de forma encriptada a nuestro servidor privado y a Groq. Al devolver la respuesta, tu texto original y la respuesta son eliminados INMEDIATAMENTE de la memoria de nuestro servidor. No usamos tus datos para entrenar IA.
           </p>
           <p>
-            <strong>Archivos y Copyright:</strong> "El usuario es enteramente responsable de poseer los derechos de autor de cualquier documento (PDF/Word) que decida importar y procesar en esta herramienta. El desarrollador se exime de toda responsabilidad legal."
+            <strong>3. Limitación de Responsabilidad y Copyright:</strong> El usuario es el único responsable del contenido y derechos de autor de los documentos (PDF/Word) que importe. Esta herramienta se proporciona "tal cual" y el desarrollador se exime de toda responsabilidad legal, civil o penal derivada de su uso o del uso de la IA.
           </p>
         </div>
       </div>
