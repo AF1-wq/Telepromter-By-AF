@@ -22,8 +22,9 @@ export const PlayerView: React.FC = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   const wordCount = useMemo(() => {
-    const text = content.replace(/<[^>]*>?/gm, '').trim();
-    return text ? text.split(' ').length : 0;
+    if (!content) return 0;
+    const text = content.replace(/<[^>]*>?/gm, ' ').replace(/&nbsp;/g, ' ').trim();
+    return text ? text.split(/\s+/).length : 0;
   }, [content]);
 
   const estimatedTime = useMemo(() => {
@@ -568,10 +569,19 @@ export const PlayerView: React.FC = () => {
             )}
           </button>
 
-          <div className="stepper-control">
-            <button className="stepper-btn" onClick={handleDecreaseSpeed} title="Reducir velocidad">-</button>
-            <span className="stepper-value">{speed}x</span>
-            <button className="stepper-btn" onClick={handleIncreaseSpeed} title="Aumentar velocidad">+</button>
+          <div className="slider-control" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.75rem', borderRadius: '50px' }}>
+            <span style={{color: 'var(--color-text-secondary)', fontSize: '0.85rem', fontWeight: 600}}>Min</span>
+            <input 
+              type="range" 
+              min="1" 
+              max="20" 
+              step="1" 
+              value={speed} 
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              style={{ width: '80px', accentColor: 'var(--color-accent)', cursor: 'pointer' }}
+              title="Velocidad"
+            />
+            <span style={{color: 'var(--color-text-primary)', fontSize: '0.85rem', fontWeight: 600}}>Max</span>
           </div>
         </div>
 
