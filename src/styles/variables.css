@@ -1,30 +1,30 @@
 /* Default: Dark Theme */
 :root {
-  /* Dark Mode Colors (Strict Minimalist) */
+  /* Dark Mode Colors (Strict Minimalist Apple-like) */
   --color-bg-primary: #000000;
-  --color-bg-secondary: #121212;
-  --color-text-primary: #F3F4F6;
-  --color-text-secondary: #9CA3AF;
+  --color-bg-secondary: #1C1C1E;
+  --color-text-primary: #F5F5F7;
+  --color-text-secondary: #8E8E93;
   
-  /* Minimalist Accent (Cobalt Blue / Indigo) ONLY for buttons/active states */
-  --color-accent: #4F46E5;
-  --color-accent-hover: #4338CA;
+  /* Minimalist Accent (Apple System Blue) ONLY for buttons/active states */
+  --color-accent: #0A84FF;
+  --color-accent-hover: #007AFF;
   
   /* Shared values */
   --border-radius-base: 16px;
 
   /* Typography */
-  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-family-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
 }
 
 [data-theme='light'] {
-  /* Light Mode Colors (Strict Minimalist) */
+  /* Light Mode Colors (Strict Minimalist Apple-like) */
   --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F9FAFB;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
+  --color-bg-secondary: #F2F2F7;
+  --color-text-primary: #1C1C1E;
+  --color-text-secondary: #8E8E93;
   
-  /* Accent stays exactly the same elegant blue */
-  --color-accent: #4F46E5;
-  --color-accent-hover: #4338CA;
+  /* Accent stays the elegant system blue */
+  --color-accent: #007AFF;
+  --color-accent-hover: #0056D6;
 }
