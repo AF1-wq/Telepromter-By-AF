@@ -23,7 +23,7 @@ export const NavigationMenu: React.FC = () => {
   return (
     <>
       <button 
-        className={`nav-hamburger ${isOpen ? 'open' : ''}`} 
+        className={`nav-hamburger z-50 ${isOpen ? 'open' : ''}`} 
         onClick={() => setIsOpen(!isOpen)}
         title="Menú Principal"
       >
@@ -34,7 +34,7 @@ export const NavigationMenu: React.FC = () => {
 
       {isOpen && <div className="nav-backdrop" onClick={() => setIsOpen(false)} />}
 
-      <div className={`nav-sidebar ${isOpen ? 'open' : ''}`}>
+      <div className={`nav-sidebar z-50 ${isOpen ? 'open' : ''}`}>
         <div className="nav-sidebar-header">
           <h2>Teleprompter by AF</h2>
         </div>

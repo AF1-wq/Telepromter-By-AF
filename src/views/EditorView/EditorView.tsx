@@ -431,6 +431,7 @@ export const EditorView: React.FC = () => {
                 initialHTML={initialContentRef.current}
                 onChange={(value) => {
                   currentContentRef.current = value;
+                  setContentUpdater(Date.now());
                   
                   if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
                   setIsSaving(true);

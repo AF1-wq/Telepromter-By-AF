@@ -22,7 +22,8 @@ export const PlayerView: React.FC = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   const wordCount = useMemo(() => {
-    return content.replace(/<[^>]*>?/gm, '').trim().split(/\s+/).filter(w => w.length > 0).length || 0;
+    const text = content.replace(/<[^>]*>?/gm, '').trim();
+    return text ? text.split(' ').length : 0;
   }, [content]);
 
   const estimatedTime = useMemo(() => {
@@ -519,9 +520,9 @@ export const PlayerView: React.FC = () => {
         </div>
       )}
 
-      <div className="controls-bar-glass">
+      <div className="controls-bar-glass w-full max-w-3xl flex justify-between items-center gap-4 px-4">
         <div className="control-group left-controls">
-          <button className="icon-btn" onClick={() => navigate('/')} title="Salir">
+          <button className="icon-btn z-50" onClick={() => navigate('/')} title="Salir">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
