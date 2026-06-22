@@ -12,6 +12,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+[data-theme='light'] .dashboard-container {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.15);
+}
+
 .dashboard-header {
   margin-bottom: 2rem;
 }

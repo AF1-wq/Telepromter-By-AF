@@ -5,21 +5,7 @@ export const Titlebar: React.FC = () => {
   const navigate = useNavigate();
   
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '44px',
-      backgroundColor: 'rgba(28, 28, 32, 0.4)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 1rem',
-      zIndex: 1000
-    }}>
+    <div className="titlebar-container">
       <div style={{ display: 'flex', gap: '8px' }}>
         <button 
           onClick={() => navigate('/')}
@@ -35,7 +21,7 @@ export const Titlebar: React.FC = () => {
           title="Maximizar" 
         />
       </div>
-      <div style={{ flex: 1, textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)', fontSize: '0.9rem', fontWeight: 600 }}>
+      <div className="titlebar-text">
         Teleprompter by AF
       </div>
     </div>

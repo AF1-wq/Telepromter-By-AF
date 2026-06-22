@@ -4,14 +4,19 @@
   left: 0;
   bottom: 0;
   width: 200px;
-  background-color: #16161a !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  background-color: rgba(28, 28, 32, 0.9);
+  color: var(--color-text-primary);
   backdrop-filter: blur(64px);
   -webkit-backdrop-filter: blur(64px);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 1000;
   display: flex;
   flex-direction: column;
+}
+
+[data-theme='light'] .nav-sidebar {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-right: 1px solid #e5e7eb;
 }
 
 .nav-sidebar-header {
