@@ -19,7 +19,7 @@ export const NavigationMenu: React.FC = () => {
 
   return (
     <>
-      <div className="nav-sidebar">
+      <div className="nav-sidebar glass">
         <div className="nav-sidebar-content">
           <div className="nav-section">
             <h3>Navegación</h3>

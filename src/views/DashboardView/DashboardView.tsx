@@ -81,7 +81,7 @@ export const DashboardView: React.FC = () => {
       </main>
 
       <button 
-        className="fab-button" 
+        className="fab-button bg-gradient-accent" 
         onClick={() => navigate('/editor/new')}
         title="Crear nuevo guión"
       >
