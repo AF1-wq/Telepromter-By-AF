@@ -1,18 +1,64 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useScripts } from '../../hooks/useScripts';
-import { useReadingMode } from '../../hooks/useReadingMode';
 import { useBionicMode } from '../../hooks/useBionicMode';
+import { X, RotateCcw, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
+import { S } from '../../components/ui/SharedComponents';
 import './PlayerView.css';
+
+function SpeedArc({ speed, running }: { speed: number; running: boolean }) {
+  const r = 36;
+  const circ = 2 * Math.PI * r;
+  const pct = (speed - 1) / 9; // 1-10 range -> 0-1
+  const dash = circ * 0.75 * Math.max(0, Math.min(1, pct));
+  const gap = circ - dash;
+  const rotation = -225;
+
+  return (
+    <svg width={80} height={80} viewBox="0 0 80 80" className={running ? "arc-active" : ""} style={{ position: "absolute", inset: 0, margin: "auto" }} aria-hidden>
+      <circle cx={40} cy={40} r={r} fill="none" stroke="var(--tp-btn-border)" strokeWidth={1.5} strokeDasharray={`${circ * 0.75} ${circ}`} strokeDashoffset={0} strokeLinecap="round" transform={`rotate(${rotation} 40 40)`} />
+      <circle cx={40} cy={40} r={r} fill="none" stroke="var(--primary)" strokeWidth={2} strokeDasharray={`${dash} ${gap + circ * 0.25}`} strokeDashoffset={0} strokeLinecap="round" transform={`rotate(${rotation} 40 40)`} style={{ transition: "stroke-dasharray 0.3s cubic-bezier(0.16,1,0.3,1)" }} />
+    </svg>
+  );
+}
+
+function KnobBtn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} className="w-6 h-6 flex items-center justify-center transition-colors" style={{ borderRadius: "calc(var(--radius) - 10px)", color: "var(--tp-btn-color)" }} onMouseEnter={e => (e.currentTarget.style.color = "var(--tp-foreground)")} onMouseLeave={e => (e.currentTarget.style.color = "var(--tp-btn-color)")}>
+      {children}
+    </button>
+  );
+}
+
+function KnobControl({ label, value, onDec, onInc }: { label: string; value: string; onDec: () => void; onInc: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <p className="text-[9px] font-semibold tracking-widest uppercase" style={{ color: "var(--tp-label-color)", fontFamily: "var(--font-ui)" }}>{label}</p>
+      <div className="flex items-center gap-1">
+        <KnobBtn onClick={onDec}><ChevronDown size={12} /></KnobBtn>
+        <span className="text-sm w-9 text-center tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--tp-value-color)" }}>{value}</span>
+        <KnobBtn onClick={onInc}><ChevronUp size={12} /></KnobBtn>
+      </div>
+    </div>
+  );
+}
+
+function TpButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-all" style={{ borderRadius: "var(--radius)", border: "1px solid var(--tp-btn-border)", color: "var(--tp-btn-color)" }} onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "var(--tp-foreground)"; }} onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "var(--tp-btn-color)"; }}>
+      {children}
+    </button>
+  );
+}
 
 export const PlayerView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getScript, saveScript } = useScripts();
-  const { mode } = useReadingMode();
   const { bionicMode } = useBionicMode();
 
   const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [fontSize, setFontSize] = useState(48);
   const [speed, setSpeed] = useState(5);
@@ -20,6 +66,8 @@ export const PlayerView: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [hudMessage, setHudMessage] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+  const [cursorVisible, setCursorVisible] = useState(false);
 
   const wordCount = useMemo(() => {
     if (!content) return 0;
@@ -28,7 +76,6 @@ export const PlayerView: React.FC = () => {
   }, [content]);
 
   const estimatedTime = useMemo(() => {
-    // Estimación dinámica: speed 1 -> 50 wpm, speed 5 -> 150 wpm, speed 10 -> 275 wpm
     const wpm = 25 + speed * 25;
     const minutes = wordCount / wpm;
     return Math.ceil(minutes * 60);
@@ -54,14 +101,13 @@ export const PlayerView: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
   const wakeLockRef = useRef<any>(null);
-  const pipWindowRef = useRef<Window | null>(null);
 
-  // Cargar guion
   useEffect(() => {
     if (id) {
       const script = getScript(id);
       if (script) {
         setContent(script.content);
+        setTitle(script.title);
         if (script.savedFontSize) setFontSize(script.savedFontSize);
         if (script.savedSpeed) setSpeed(script.savedSpeed);
       } else {
@@ -71,7 +117,6 @@ export const PlayerView: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
 
-  // Guardar preferencias si cambian
   useEffect(() => {
     if (id && content) {
       const script = getScript(id);
@@ -86,7 +131,6 @@ export const PlayerView: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fontSize, speed]);
 
-  // Wake Lock API
   useEffect(() => {
     const requestWakeLock = async () => {
       try {
@@ -97,7 +141,6 @@ export const PlayerView: React.FC = () => {
         console.log(`Wake Lock Error: ${err.name}, ${err.message}`);
       }
     };
-
     const releaseWakeLock = async () => {
       if (wakeLockRef.current) {
         try {
@@ -108,23 +151,13 @@ export const PlayerView: React.FC = () => {
         }
       }
     };
-
-    if (isPlaying) {
-      requestWakeLock();
-    } else {
-      releaseWakeLock();
-    }
-
-    return () => {
-      releaseWakeLock();
-    };
+    if (isPlaying) requestWakeLock();
+    else releaseWakeLock();
+    return () => { releaseWakeLock(); };
   }, [isPlaying]);
 
-  // High-Performance Scroll Engine
   const speedRef = useRef(speed);
-  useEffect(() => {
-    speedRef.current = speed;
-  }, [speed]);
+  useEffect(() => { speedRef.current = speed; }, [speed]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -138,32 +171,24 @@ export const PlayerView: React.FC = () => {
     const scrollStep = (time: number) => {
       const delta = time - lastTime;
       lastTime = time;
-
       if (scrollContainerRef.current) {
-        // Multiplier adjusted so speed 1-10 remains comfortable (approx 0.02 * 16ms = 0.32px per frame at 60fps)
         accumulatedFloat += (speedRef.current * 0.02 * delta);
-        
         if (accumulatedFloat >= 1) {
           const pixels = Math.floor(accumulatedFloat);
           scrollContainerRef.current.scrollTop += pixels;
           accumulatedFloat -= pixels;
         }
-        
         animationRef.current = requestAnimationFrame(scrollStep);
       }
     };
-
     animationRef.current = requestAnimationFrame(scrollStep);
-
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, [isPlaying]);
 
-  // Countdown Logic
   useEffect(() => {
     if (countdown === null) return;
-    
     if (countdown > 0) {
       const timer = setTimeout(() => {
         setCountdown(countdown - 1);
@@ -197,18 +222,6 @@ export const PlayerView: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const onPipPlayPause = () => handlePlayPause();
-    const onPipRestart = () => handleRestart();
-    window.addEventListener('pip-play-pause-toggle', onPipPlayPause);
-    window.addEventListener('pip-restart', onPipRestart);
-    return () => {
-      window.removeEventListener('pip-play-pause-toggle', onPipPlayPause);
-      window.removeEventListener('pip-restart', onPipRestart);
-    };
-  }, [isPlayingOrCountdown]);
-
-  // Handle user interaction to pause the animation
   const handleUserInteraction = () => {
     if (isPlayingOrCountdown) {
       setIsPlaying(false);
@@ -216,8 +229,6 @@ export const PlayerView: React.FC = () => {
     }
   };
 
-
-  // HUD clear timer
   useEffect(() => {
     if (hudMessage) {
       const timer = setTimeout(() => setHudMessage(null), 1500);
@@ -225,230 +236,46 @@ export const PlayerView: React.FC = () => {
     }
   }, [hudMessage]);
 
-  const showHud = (message: string) => {
-    setHudMessage(message);
-  };
+  const showHud = (message: string) => setHudMessage(message);
 
-  // Document Picture-in-Picture
-  const handleTogglePiP = async () => {
-    if (!('documentPictureInPicture' in window)) {
-      showHud("Modo Flotante no soportado");
-      return;
-    }
-
-    try {
-      if (pipWindowRef.current) {
-        pipWindowRef.current.close();
-        return;
-      }
-
-      const pipWindow = await (window as any).documentPictureInPicture.requestWindow({
-        width: 450,
-        height: 800,
-      });
-
-      pipWindowRef.current = pipWindow;
-      
-      if (scrollContainerRef.current) {
-        pipWindow.document.body.appendChild(scrollContainerRef.current);
-        
-        // Copiar todos los estilos del document principal
-        Array.from(document.styleSheets).forEach((styleSheet) => {
-          try {
-            if (styleSheet.href) {
-              const link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = styleSheet.href;
-              pipWindow.document.head.appendChild(link);
-            } else if (styleSheet.cssRules) {
-              const style = document.createElement('style');
-              Array.from(styleSheet.cssRules).forEach((rule) => {
-                style.appendChild(document.createTextNode(rule.cssText));
-              });
-              pipWindow.document.head.appendChild(style);
-            }
-          } catch (e) {
-            console.warn('Cannot access stylesheet', e);
-          }
-        });
-
-        // Copiar atributo de tema y modo
-        pipWindow.document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'dark');
-        pipWindow.document.body.classList.add(`mode-${mode}`);
-
-        // Estilos específicos de PiP
-        const customStyle = document.createElement('style');
-        customStyle.textContent = `
-          body { background: var(--color-bg-primary); color: var(--color-text-primary); margin: 0; padding: 20px; overflow: hidden; }
-          body.mode-pro { background-color: #000000 !important; }
-          body.mode-pro .prompter-text * { color: #FFFF00 !important; }
-          body.mode-accessibility .prompter-text * { letter-spacing: 2px !important; line-height: 2.5 !important; }
-          .prompter-text-area { height: 100vh; overflow-y: scroll; padding-bottom: 50vh; display: flex; align-items: flex-start; justify-content: center; mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); scrollbar-width: none; }
-          .prompter-text-area::-webkit-scrollbar { display: none; }
-          .focus-line-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.8) 35%, transparent 35%, transparent 65%, rgba(0,0,0,0.8) 65%, rgba(0,0,0,0.8) 100%); z-index: 5; }
-          [data-theme='light'] .focus-line-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 35%, transparent 35%, transparent 65%, rgba(255,255,255,0.8) 65%, rgba(255,255,255,0.8) 100%); }
-          body .controls-bar-glass { opacity: 1 !important; transform: translateX(-50%) !important; bottom: 20px !important; }
-          body.is-playing .controls-bar-glass { opacity: 0.1 !important; }
-          body:hover .controls-bar-glass, body.is-playing:hover .controls-bar-glass { opacity: 1 !important; }
-        `;
-        pipWindow.document.head.appendChild(customStyle);
-
-        // Add controls
-        const pipControls = document.createElement('div');
-        pipControls.className = 'controls-bar-glass';
-        pipControls.innerHTML = '<div class="control-group"><button id="pip-restart" class="icon-btn" title="Reiniciar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button id="pip-play" class="play-pause-btn" title="Play/Pausa"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button><button id="pip-close" class="icon-btn" title="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>';
-        pipWindow.document.body.appendChild(pipControls);
-
-        pipWindow.document.getElementById('pip-restart')?.addEventListener('click', () => {
-          window.dispatchEvent(new CustomEvent('pip-restart'));
-        });
-        pipWindow.document.getElementById('pip-play')?.addEventListener('click', () => {
-          window.dispatchEvent(new CustomEvent('pip-play-pause-toggle'));
-        });
-        pipWindow.document.getElementById('pip-close')?.addEventListener('click', () => {
-          pipWindow.close();
-        });
-
-        // Si es focus mode, añadir el overlay al body de PiP
-        if (mode === 'focus') {
-          const overlay = document.createElement('div');
-          overlay.className = 'focus-line-overlay';
-          pipWindow.document.body.appendChild(overlay);
-        }
-
-        pipWindow.addEventListener("pagehide", () => {
-          if (scrollContainerRef.current) {
-            document.querySelector('.player-container')?.insertBefore(
-              scrollContainerRef.current,
-              document.querySelector('.countdown-overlay') || document.querySelector('.controls-bar-glass')
-            );
-          }
-          pipWindowRef.current = null;
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      showHud("Error al iniciar Modo Flotante");
-    }
-  };
-
-  // Sync mode with PiP
-  useEffect(() => {
-    if (pipWindowRef.current) {
-      pipWindowRef.current.document.body.className = `mode-${mode}`;
-      if (isPlaying) {
-        pipWindowRef.current.document.body.classList.add('is-playing');
-      } else {
-        pipWindowRef.current.document.body.classList.remove('is-playing');
-      }
-      
-      const btn = pipWindowRef.current.document.getElementById('pip-play');
-      if (btn) {
-        if (isPlayingOrCountdown) {
-          btn.classList.add('playing');
-          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-        } else {
-          btn.classList.remove('playing');
-          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-        }
-      }
-
-      if (mode === 'focus') {
-        let overlay = pipWindowRef.current.document.querySelector('.focus-line-overlay');
-        if (!overlay) {
-          overlay = document.createElement('div');
-          overlay.className = 'focus-line-overlay';
-          pipWindowRef.current.document.body.appendChild(overlay);
-        }
-      } else {
-        const overlay = pipWindowRef.current.document.querySelector('.focus-line-overlay');
-        if (overlay) overlay.remove();
-      }
-    }
-  }, [mode, isPlaying, isPlayingOrCountdown]);
-
-  // Hardware Remote Control
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
       switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          handlePlayPause();
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setSpeed(prev => {
-            const next = Math.min(prev + 1, 10);
-            showHud(`Velocidad: ${next}x`);
-            return next;
-          });
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          setSpeed(prev => {
-            const next = Math.max(prev - 1, 1);
-            showHud(`Velocidad: ${next}x`);
-            return next;
-          });
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          setFontSize(prev => {
-            const next = Math.min(prev + 4, 120);
-            showHud(`Tamaño: ${next}px`);
-            return next;
-          });
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          setFontSize(prev => {
-            const next = Math.max(prev - 4, 24);
-            showHud(`Tamaño: ${next}px`);
-            return next;
-          });
-          break;
-        case 'Escape':
-          e.preventDefault();
-          navigate('/');
-          break;
+        case ' ': e.preventDefault(); handlePlayPause(); break;
+        case 'ArrowUp': e.preventDefault(); setSpeed(prev => { const n = Math.min(prev + 1, 10); showHud(`Velocidad: ${n}x`); return n; }); break;
+        case 'ArrowDown': e.preventDefault(); setSpeed(prev => { const n = Math.max(prev - 1, 1); showHud(`Velocidad: ${n}x`); return n; }); break;
+        case 'ArrowRight': e.preventDefault(); setFontSize(prev => { const n = Math.min(prev + 4, 120); showHud(`Tamaño: ${n}px`); return n; }); break;
+        case 'ArrowLeft': e.preventDefault(); setFontSize(prev => { const n = Math.max(prev - 4, 24); showHud(`Tamaño: ${n}px`); return n; }); break;
+        case 'Escape': e.preventDefault(); navigate(`/editor/${id}`); break;
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlayingOrCountdown, navigate]); // Depend on isPlayingOrCountdown to have the correct state for PlayPause
+  }, [isPlayingOrCountdown, navigate, id]);
 
   const renderedContent = useMemo(() => {
     if (!bionicMode || !content) return { __html: content };
-    
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'text/html');
-      
       const processNode = (node: Node) => {
         if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {
           const words = node.nodeValue.split(/(\s+)/);
           const fragment = document.createDocumentFragment();
           let changed = false;
-          
           words.forEach(word => {
             if (word.trim().length > 0 && /^[A-Za-zÀ-ÿ]+[A-Za-zÀ-ÿ.,:;!?]*$/.test(word)) {
               changed = true;
               const cleanWord = word.replace(/[.,:;!?]+$/, '');
               const punctuation = word.substring(cleanWord.length);
-              
               if (cleanWord.length > 2) {
                 const pivot = Math.ceil(cleanWord.length / 2);
                 const firstHalf = cleanWord.substring(0, pivot);
                 const secondHalf = cleanWord.substring(pivot);
-                
                 const b = document.createElement('b');
                 b.className = 'bionic-bold';
                 b.textContent = firstHalf;
-                
                 fragment.appendChild(b);
                 fragment.appendChild(document.createTextNode(secondHalf + punctuation));
               } else {
@@ -458,10 +285,7 @@ export const PlayerView: React.FC = () => {
               fragment.appendChild(document.createTextNode(word));
             }
           });
-          
-          if (changed && node.parentNode) {
-            node.parentNode.replaceChild(fragment, node);
-          }
+          if (changed && node.parentNode) node.parentNode.replaceChild(fragment, node);
         } else if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
           if (element.tagName !== 'SCRIPT' && element.tagName !== 'STYLE' && element.tagName !== 'B') {
@@ -469,7 +293,6 @@ export const PlayerView: React.FC = () => {
           }
         }
       };
-      
       Array.from(doc.body.childNodes).forEach(processNode);
       return { __html: doc.body.innerHTML };
     } catch (e) {
@@ -479,132 +302,120 @@ export const PlayerView: React.FC = () => {
   }, [bionicMode, content]);
 
   return (
-    <div className={`player-container mode-${mode} ${bionicMode ? 'bionic-active' : ''} ${isPlaying ? 'is-playing' : ''}`}>
-      {mode === 'focus' && <div className="focus-line-overlay" />}
-      
-      {/* Focus Marker */}
-      <div className="focus-marker">
-        <div className="focus-triangle left"></div>
-        <div className="focus-line"></div>
-        <div className="focus-triangle right"></div>
-      </div>
+    <div
+      className="fixed inset-0 flex flex-col tp-cursor view-in"
+      style={{ zIndex: 50, background: "var(--tp-background)", contain: "strict" }}
+      onMouseMove={(e) => { setCursorPos({ x: e.clientX, y: e.clientY }); setCursorVisible(true); }}
+      onMouseLeave={() => setCursorVisible(false)}
+    >
+      {cursorVisible && (
+        <div className="tp-cursor-dot" style={{ left: cursorPos.x, top: cursorPos.y, opacity: cursorVisible ? 1 : 0 }} aria-hidden />
+      )}
 
-      <div 
-        className="prompter-text-area"
+      {countdown !== null && countdown > 0 && (
+        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 60, background: "var(--tp-overlay-bg)", backdropFilter: "blur(12px)" }}>
+          <span className="countdown-num font-semibold" style={{ fontFamily: "var(--font-ui)", fontSize: "clamp(6rem, 20vw, 12rem)", color: "var(--tp-foreground)", letterSpacing: "-0.05em", lineHeight: 1 }}>
+            {countdown}
+          </span>
+        </div>
+      )}
+
+      {hudMessage && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1.5 rounded-full font-bold shadow-lg" style={{ zIndex: 60 }}>
+          {hudMessage}
+        </div>
+      )}
+
+      <div
         ref={scrollContainerRef}
+        className={`flex-1 overflow-y-auto overflow-x-hidden select-none tp-scroll tp-ready ${bionicMode ? 'bionic-active' : ''}`}
+        style={{ padding: "22vh 10vw 0", transform: isMirrored ? "scaleX(-1)" : undefined }}
         onWheel={handleUserInteraction}
         onTouchMove={handleUserInteraction}
         onMouseDown={handleUserInteraction}
       >
-        <div 
-          className="prompter-text"
-          style={{ 
+        <p
+          className="pb-[60vh] prompter-text"
+          style={{
+            color: "var(--tp-foreground)",
+            fontFamily: "var(--font-reading)",
             fontSize: `${fontSize}px`,
-            transform: isMirrored ? 'scaleX(-1)' : 'none'
+            lineHeight: "1.65",
+            fontWeight: 300,
+            letterSpacing: "0.005em",
           }}
           dangerouslySetInnerHTML={renderedContent}
         />
       </div>
 
-      {/* Countdown Overlay */}
-      {countdown !== null && countdown > 0 && (
-        <div className="countdown-overlay">
-          <span className="countdown-number">{countdown}</span>
-        </div>
-      )}
+      <div className="pointer-events-none absolute inset-x-0 top-0" style={{ height: "20vh", background: "var(--tp-fade-top)" }} aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 bottom-[80px]" style={{ height: "22vh", background: "var(--tp-fade-bottom)" }} aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0" style={{ top: "37%", height: 1, background: "var(--tp-focus-line)" }} aria-hidden />
 
-      {/* Transient HUD Overlay */}
-      {hudMessage && (
-        <div className="hud-overlay">
-          <span className="hud-text">{hudMessage}</span>
-        </div>
-      )}
-
-      <div className="controls-bar-glass w-full max-w-3xl flex justify-between items-center gap-4 px-4">
-        <div className="control-group left-controls">
-          <button className="icon-btn" onClick={handleRestart} title="Reiniciar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-              <path d="M3 3v5h5"/>
-            </svg>
-          </button>
-          
-          <div className="timer-display" style={{ marginLeft: '0.5rem', color: 'var(--color-text-secondary)', fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontFamily: 'monospace', fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
-            <span style={{color: 'var(--color-text-primary)'}}>{formatTime(elapsedTime)}</span> / {formatTime(estimatedTime)}
-          </div>
-        </div>
-
-        <div className="control-group center-controls">
-          <div className="slider-control" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.75rem', borderRadius: '50px' }}>
-            <span style={{color: 'var(--color-text-secondary)', fontSize: '0.9rem', fontWeight: 600}}>A</span>
-            <input 
-              type="range" 
-              min="16" 
-              max="150" 
-              step="2" 
-              value={fontSize} 
-              onChange={(e) => setFontSize(Number(e.target.value))}
-              style={{ width: '80px', accentColor: 'var(--color-accent)', cursor: 'pointer' }}
-              title="Tamaño de letra"
-            />
-            <span style={{color: 'var(--color-text-primary)', fontSize: '1.2rem', fontWeight: 600}}>A</span>
+      <div className="relative z-10 flex items-center justify-between px-7 py-4" style={S.tpControls}>
+        <div className="flex items-center gap-2 w-44">
+          {/* Apple Traffic Lights for consistency */}
+          <div className="flex items-center gap-1.5 mr-4">
+            {(["--traffic-red", "--traffic-yellow", "--traffic-green"] as const).map(v => (
+              <div key={v} style={{ width: 12, height: 12, borderRadius: "50%", background: `var(${v})`, opacity: 0.85 }} />
+            ))}
           </div>
 
-          <button 
-            className={`play-pause-btn ${isPlayingOrCountdown ? 'playing' : ''}`}
-            onClick={handlePlayPause}
-            title={isPlayingOrCountdown ? "Pausar" : "Reproducir"}
+          <TpButton onClick={() => navigate(`/editor/${id}`)}><X size={12} />Salir</TpButton>
+          <button
+            onClick={handleRestart}
+            className="w-8 h-8 flex items-center justify-center transition-colors"
+            style={{ borderRadius: "var(--radius)", border: "1px solid var(--tp-btn-border)", color: "var(--tp-btn-color)" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--tp-foreground)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--tp-btn-color)")}
+            title="Reiniciar"
           >
-            {isPlayingOrCountdown ? (
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <rect x="6" y="4" width="4" height="16"></rect>
-                <rect x="14" y="4" width="4" height="16"></rect>
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-            )}
+            <RotateCcw size={13} />
           </button>
-
-          <div className="slider-control" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.75rem', borderRadius: '50px' }}>
-            <span style={{color: 'var(--color-text-secondary)', fontSize: '0.85rem', fontWeight: 600}}>Min</span>
-            <input 
-              type="range" 
-              min="1" 
-              max="20" 
-              step="1" 
-              value={speed} 
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              style={{ width: '80px', accentColor: 'var(--color-accent)', cursor: 'pointer' }}
-              title="Velocidad"
-            />
-            <span style={{color: 'var(--color-text-primary)', fontSize: '0.85rem', fontWeight: 600}}>Max</span>
-          </div>
         </div>
 
-        <div className="control-group right-controls">
-          <button className="icon-btn" onClick={handleTogglePiP} title="Modo Flotante">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <rect x="12" y="12" width="7" height="5"></rect>
-            </svg>
-          </button>
-          <button 
-            className={`icon-btn ${isMirrored ? 'active' : ''}`} 
-            onClick={() => setIsMirrored(!isMirrored)} 
-            title="Modo Espejo"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {/* Vertical line and arrows to denote horizontal flip */}
-              <path d="M12 2v20"></path>
-              <path d="M17 16l4-4-4-4"></path>
-              <path d="M7 16l-4-4 4-4"></path>
-            </svg>
-          </button>
+        <div className="flex items-center gap-8">
+          <KnobControl label="Velocidad" value={speed.toFixed(1)}
+            onDec={() => setSpeed(Math.max(1, speed - 1))}
+            onInc={() => setSpeed(Math.min(10, speed + 1))} />
+
+          <div className="relative flex items-center justify-center">
+            <SpeedArc speed={speed} running={isPlaying} />
+            <button
+              onClick={handlePlayPause}
+              className="w-14 h-14 flex items-center justify-center transition-all active:scale-90"
+              style={{ ...S.tpPlayBtn, position: "relative", zIndex: 1 }}
+            >
+              {isPlayingOrCountdown
+                ? <Pause size={20} style={{ fill: "var(--tp-play-icon)" }} strokeWidth={0} />
+                : <Play size={20} style={{ fill: "var(--tp-play-icon)", marginLeft: 2 }} strokeWidth={0} />}
+            </button>
+          </div>
+
+          <KnobControl label="Tamaño" value={`${fontSize}`}
+            onDec={() => setFontSize(Math.max(24, fontSize - 4))}
+            onInc={() => setFontSize(Math.min(120, fontSize + 4))} />
+        </div>
+
+        <div className="flex items-center gap-2 w-44 justify-end">
+          <div className="timer-display" style={{ color: "var(--tp-label-color)", fontFamily: "var(--font-mono)", fontSize: "11px", marginRight: '10px' }}>
+            {formatTime(elapsedTime)} / {formatTime(estimatedTime)}
+          </div>
+          <button
+            onClick={() => setIsMirrored(!isMirrored)}
+            className="px-3 py-1.5 text-[11px] font-medium transition-all"
+            style={{
+              borderRadius: "var(--radius)",
+              border: `1px solid ${isMirrored ? "var(--tp-mirror-border)" : "var(--tp-btn-border)"}`,
+              color: isMirrored ? "var(--tp-mirror-text)" : "var(--tp-btn-color)",
+              background: isMirrored ? "var(--tp-mirror-accent)" : "transparent",
+            }}
+          >Espejo</button>
+          <p className="text-[10px] max-w-[80px] truncate" style={{ color: "var(--tp-label-color)", fontFamily: "var(--font-mono)" }}>
+            {title}
+          </p>
         </div>
       </div>
     </div>
   );
 };
-

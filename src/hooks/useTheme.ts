@@ -26,11 +26,13 @@ export const useTheme = () => {
     setThemeState(newTheme);
     localStorage.setItem('app-theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
     window.dispatchEvent(new Event('theme-changed'));
   };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   return { theme, toggleTheme };
