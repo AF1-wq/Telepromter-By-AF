@@ -88,17 +88,12 @@
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease, transform 0.3s ease;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   width: max-content;
   max-width: 90vw;
   z-index: 10;
-}
-
-.player-container:hover .controls-bar-glass {
-  opacity: 1;
-  transform: translate(-50%, 0);
 }
 
 .player-container.is-playing .controls-bar-glass {
