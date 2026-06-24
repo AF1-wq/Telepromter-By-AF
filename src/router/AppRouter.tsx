@@ -9,8 +9,8 @@ export const AppRouter: React.FC = () => {
 
   return (
     <BrowserRouter basename="/Telepromter-By-AF/">
-      <div className="size-full bg-background text-foreground overflow-hidden" style={{ fontFamily: "var(--font-ui)", width: "100vw", height: "100vh" }}>
-        <div className="relative size-full h-full" style={{ zIndex: 1 }}>
+      <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden" style={{ fontFamily: "var(--font-ui)" }}>
+        <div className="flex-1 flex h-full min-w-0 relative" style={{ zIndex: 1 }}>
           <Routes>
             <Route path="/" element={<DashboardView />} />
             <Route path="/editor/:id" element={<EditorView />} />

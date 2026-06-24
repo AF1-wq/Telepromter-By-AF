@@ -86,7 +86,7 @@ export const S = {
 export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary }:
   { dark: boolean; onToggleDark: () => void; activeView: "library" | "editor"; onCreate: () => void; onGoLibrary: () => void }) {
   return (
-    <aside className="w-[196px] flex-shrink-0 h-full flex flex-col" style={S.sidebar}>
+    <aside className="w-64 flex-shrink-0 h-full flex flex-col relative z-40" style={S.sidebar}>
       <div className="px-4 pt-6 pb-5">
         <div className="flex items-center gap-2.5">
           <div

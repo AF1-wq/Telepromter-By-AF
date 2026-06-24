@@ -149,10 +149,10 @@ export const DashboardView: React.FC = () => {
   const handleOpen = (id: string) => navigate(`/editor/${id}`);
 
   return (
-    <div className="flex h-full view-in">
+    <div className="flex h-full w-full view-in relative z-10">
       <Sidebar dark={dark} onToggleDark={toggleTheme} activeView="library" onCreate={handleCreate} onGoLibrary={() => {}} />
-      <main className="flex-1 overflow-y-auto editor-scroll min-w-0">
-        <div className="sticky top-0 z-10 px-8 pt-6 pb-4" style={S.toolbar}>
+      <main className="flex-1 h-full flex flex-col min-w-0 relative">
+        <div className="sticky top-0 z-30 px-8 pt-6 pb-4" style={S.toolbar}>
           {/* Apple Buttons */}
           <div className="flex items-center gap-1.5 mb-4">
             {(["--traffic-red", "--traffic-yellow", "--traffic-green"] as const).map(v => (
@@ -198,7 +198,7 @@ export const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-8">
+        <div className="p-8 flex-1 overflow-y-auto editor-scroll">
           {filtered.length === 0 && query ? (
             <div className="flex flex-col items-center py-20">
               <p className="text-sm text-muted-foreground">Sin resultados para &ldquo;{query}&rdquo;</p>

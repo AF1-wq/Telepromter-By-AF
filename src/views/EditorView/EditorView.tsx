@@ -327,16 +327,16 @@ export const EditorView: React.FC = () => {
   const scriptObj = getScript(scriptId);
 
   return (
-    <div className="flex h-full view-in">
+    <div className="flex h-full w-full view-in relative z-10">
       <Sidebar dark={dark} onToggleDark={toggleTheme} activeView="editor" onCreate={() => {}} onGoLibrary={() => navigate('/')} />
       
       <div 
-        className={`flex-1 flex flex-col overflow-hidden min-w-0 ${isDragging ? 'opacity-50 ring-2 ring-primary ring-inset' : ''}`}
+        className={`flex-1 flex flex-col overflow-hidden min-w-0 relative ${isDragging ? 'opacity-50 ring-2 ring-primary ring-inset' : ''}`}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
       >
-        <header className="flex items-center justify-between px-5 py-2.5" style={S.toolbar}>
+        <header className="flex items-center justify-between px-5 py-2.5 z-30 relative shrink-0" style={S.toolbar}>
           <button onClick={() => navigate('/')} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft size={13} strokeWidth={2.5} />Biblioteca
           </button>
