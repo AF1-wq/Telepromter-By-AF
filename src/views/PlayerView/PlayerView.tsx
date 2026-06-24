@@ -354,11 +354,11 @@ export const PlayerView: React.FC = () => {
 
       <div className="relative z-10 flex items-center justify-between px-7 py-4" style={S.tpControls}>
         <div className="flex items-center gap-2 w-44">
-          {/* Apple Traffic Lights for consistency */}
+          {/* macOS window controls */}
           <div className="flex items-center gap-1.5 mr-4">
-            {(["--traffic-red", "--traffic-yellow", "--traffic-green"] as const).map(v => (
-              <div key={v} style={{ width: 12, height: 12, borderRadius: "50%", background: `var(${v})`, opacity: 0.85 }} />
-            ))}
+            <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FF5F57" }} />
+            <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FEBC2E" }} />
+            <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#28C840" }} />
           </div>
 
           <TpButton onClick={() => navigate(`/editor/${id}`)}><X size={12} />Salir</TpButton>

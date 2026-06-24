@@ -1,5 +1,5 @@
-import React from "react";
-import { Mic, Sun, Moon } from "lucide-react";
+import React, { useState } from "react";
+import { Zap, Sun, Moon, X } from "lucide-react";
 
 export const S = {
   panelGlass: {
@@ -85,9 +85,19 @@ export const S = {
 
 export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary }:
   { dark: boolean; onToggleDark: () => void; activeView: "library" | "editor"; onCreate: () => void; onGoLibrary: () => void }) {
+  const [showTerms, setShowTerms] = useState(false);
+
   return (
-    <aside className="w-64 flex-shrink-0 h-full flex flex-col relative z-40" style={S.sidebar}>
-      <div className="px-4 pt-6 pb-5">
+    <>
+      <aside className="w-64 flex-shrink-0 h-full flex flex-col relative z-40" style={S.sidebar}>
+        {/* macOS window controls */}
+        <div className="flex items-center gap-1.5 px-4 pt-4">
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FF5F57" }} />
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#FEBC2E" }} />
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#28C840" }} />
+        </div>
+
+        <div className="px-4 pt-4 pb-5">
         <div className="flex items-center gap-2.5">
           <div
             className="brand-icon"
@@ -97,10 +107,10 @@ export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary 
               background: "linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, var(--accent-foreground)) 100%)",
             }}
           >
-            <Mic size={14} style={{ color: "var(--primary-foreground)" }} />
+            <Zap size={14} style={{ color: "var(--primary-foreground)" }} fill="currentColor" />
           </div>
           <span className="text-sm font-semibold text-foreground" style={{ letterSpacing: "-0.02em", fontFamily: "var(--font-ui)" }}>
-            Prompter
+            Teleprompter by AF
           </span>
         </div>
       </div>
@@ -121,11 +131,32 @@ export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary 
       </SidebarSection>
 
       <div className="mt-auto px-4 pb-5">
-        <p className="text-[11px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors" style={{ fontFamily: "var(--font-ui)" }}>
-          Términos de uso
-        </p>
+        <button onClick={() => setShowTerms(true)} className="text-[11px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors text-left" style={{ fontFamily: "var(--font-ui)" }}>
+          Términos y Privacidad
+        </button>
       </div>
     </aside>
+
+    {showTerms && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all" onClick={() => setShowTerms(false)}>
+        <div className="bg-card text-card-foreground w-full max-w-2xl rounded-xl shadow-lg border border-border flex flex-col max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <h2 className="text-lg font-semibold" style={{ fontFamily: "var(--font-ui)" }}>Términos y Privacidad</h2>
+            <button onClick={() => setShowTerms(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+          </div>
+          <div className="p-6 overflow-y-auto text-sm leading-relaxed" style={{ fontFamily: "var(--font-ui)" }}>
+              <p className="mb-4"><strong>1. Transparencia y Privacidad por Diseño</strong><br/>En Teleprompter by AF, tu privacidad es nuestra prioridad absoluta. Nuestra aplicación ha sido construida bajo el principio de 'Privacidad por Diseño'. Esto significa que no almacenamos, no guardamos y no tenemos bases de datos con los guiones o textos que escribes en nuestra plataforma.</p>
+              <p className="mb-4"><strong>2. ¿Cómo funciona nuestra Inteligencia Artificial?</strong><br/>Cuando utilizas las herramientas de asistencia de IA (como 'Mejorar Cadencia', 'Coach de Pronunciación' o 'Traducir'), tu texto no se procesa localmente. El texto seleccionado se envía de forma encriptada a nuestro servidor privado. Nuestro servidor se comunica exclusivamente con nuestro proveedor de Inteligencia Artificial (Groq) para procesar tu solicitud. Una vez que la IA devuelve la respuesta, tu texto original y la respuesta son eliminados inmediatamente de la memoria de nuestro servidor.</p>
+              <p className="mb-4"><strong>3. Uso de tus datos</strong><br/>- Sin retención de datos: Ningún guion o documento que insertes en el teleprompter se guarda en nuestros servidores al finalizar la sesión.<br/>- Sin entrenamiento de IA: Garantizamos que los textos que envías no son utilizados para entrenar modelos de lenguaje públicos o privados.</p>
+              <p className="mb-4"><strong>4. Proveedores de Infraestructura</strong><br/>Nos apoyamos en infraestructuras líderes: Render (para nuestro servidor de conexión seguro) y Groq (motor de procesamiento de IA). Ambas plataformas operan bajo estrictos estándares de seguridad y encriptación.</p>
+              <p className="mb-4"><strong>5. Propiedad Intelectual y Derechos de Autor (Copyright)</strong><br/>El usuario es el único responsable del contenido (textos, guiones, documentos o archivos PDF) que introduzca, importe o procese en la aplicación. Teleprompter by AF y su desarrollador no asumen ninguna responsabilidad por infracciones de derechos de autor, plagio o uso indebido de material protegido por propiedad intelectual realizado por los usuarios. Al importar un documento, el usuario declara tener los derechos necesarios sobre el mismo.</p>
+              <p className="mb-4"><strong>6. Limitación de Responsabilidad (Exención Legal)</strong><br/>Esta herramienta se proporciona "tal cual" (as is) y "según disponibilidad". El desarrollador se exime de toda responsabilidad civil, penal o comercial derivada del uso, mal uso o incapacidad de uso de la aplicación. Esto incluye, pero no se limita a, la pérdida de información, interrupciones del servicio, o cualquier daño directo o indirecto resultante de decisiones tomadas en base a las funciones de IA.</p>
+              <p className="mb-4"><strong>7. Responsabilidad del Usuario</strong><br/>Te recomendamos aplicar el sentido común: evita introducir contraseñas o datos personales altamente sensibles en el editor. El uso de esta herramienta y sus resultados es bajo tu propia y estricta responsabilidad.</p>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 

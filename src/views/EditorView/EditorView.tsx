@@ -368,12 +368,6 @@ export const EditorView: React.FC = () => {
           <div className="max-w-2xl mx-auto flex-1 transition-all">
             <div className="relative glass-noise" style={{ borderRadius: "calc(var(--radius) + 6px)", overflow: "hidden", ...S.panelGlass }}>
               <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "1px solid var(--glass-toolbar-border)", background: "color-mix(in srgb, var(--glass-panel-inset) 20%, transparent)" }}>
-                {/* Apple Traffic Lights */}
-                <div className="flex items-center gap-1.5 mr-2">
-                  {(["--traffic-red", "--traffic-yellow", "--traffic-green"] as const).map(v => (
-                    <div key={v} style={{ width: 12, height: 12, borderRadius: "50%", background: `var(${v})`, opacity: 0.85 }} />
-                  ))}
-                </div>
                 <div className="flex items-center gap-0.5 ml-1">
                   {[
                     { icon: <Bold size={11} />, cmd: "bold", title: "Negrita" },

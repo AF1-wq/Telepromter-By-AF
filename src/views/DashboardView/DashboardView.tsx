@@ -153,13 +153,6 @@ export const DashboardView: React.FC = () => {
       <Sidebar dark={dark} onToggleDark={toggleTheme} activeView="library" onCreate={handleCreate} onGoLibrary={() => {}} />
       <main className="flex-1 h-full flex flex-col min-w-0 relative">
         <div className="sticky top-0 z-30 px-8 pt-6 pb-4" style={S.toolbar}>
-          {/* Apple Buttons */}
-          <div className="flex items-center gap-1.5 mb-4">
-            {(["--traffic-red", "--traffic-yellow", "--traffic-green"] as const).map(v => (
-              <div key={v} style={{ width: 12, height: 12, borderRadius: "50%", background: `var(${v})`, opacity: 0.85 }} />
-            ))}
-          </div>
-
           <div className="flex items-end justify-between mb-5">
             <div>
               <div className="flex items-baseline gap-3 mb-1">
