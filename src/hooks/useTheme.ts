@@ -1,9 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 type Theme = 'dark' | 'light';
 
-// Apply theme directly to DOM — no React re-render required
-function applyTheme(theme: Theme) {
+interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+function applyThemeToDOM(theme: Theme) {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.classList.add('dark');
@@ -11,30 +17,43 @@ function applyTheme(theme: Theme) {
     root.classList.remove('dark');
   }
   root.setAttribute('data-theme', theme);
-  localStorage.setItem('app-theme', theme);
 }
 
-// Read saved theme from localStorage (SSR-safe)
 function getSavedTheme(): Theme {
   try {
-    const saved = localStorage.getItem('app-theme') as Theme | null;
+    const saved = localStorage.getItem('app-theme');
     return saved === 'light' ? 'light' : 'dark';
   } catch {
     return 'dark';
   }
 }
 
-export const useTheme = () => {
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getSavedTheme);
 
-  // Apply theme on mount and whenever it changes
   useEffect(() => {
-    applyTheme(theme);
+    applyThemeToDOM(theme);
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      // Apply immediately — don't wait for useEffect
+      applyThemeToDOM(next);
+      try { localStorage.setItem('app-theme', next); } catch {}
+      return next;
+    });
   }, []);
 
-  return { theme, toggleTheme };
-};
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');
+  return ctx;
+}

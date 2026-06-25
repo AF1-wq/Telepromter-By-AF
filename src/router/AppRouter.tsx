@@ -2,17 +2,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DashboardView } from '../views/DashboardView/DashboardView';
 import { EditorView } from '../views/EditorView/EditorView';
 import { PlayerView } from '../views/PlayerView/PlayerView';
-import { useTheme } from '../hooks/useTheme';
-
-const ThemeInit = () => {
-  useTheme();
-  return null;
-};
 
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter basename="/Telepromter-By-AF/">
-      <ThemeInit />
       <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden" style={{ fontFamily: "var(--font-ui)" }}>
         <div className="flex-1 flex h-full min-w-0 relative" style={{ zIndex: 1 }}>
           <Routes>
