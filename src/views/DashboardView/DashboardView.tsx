@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScripts } from '../../hooks/useScripts';
 import { useTheme } from '../../hooks/useTheme';
-import { Plus, Search, FileText, Clock, Edit3, Trash2, Mic } from 'lucide-react';
+import { Plus, Search, FileText, Clock, Edit3, Trash2 } from 'lucide-react';
 import { S, Sidebar, PrimaryButton } from '../../components/ui/SharedComponents';
 
 const estimateMinutes = (text: string) =>
@@ -42,7 +42,7 @@ function ScriptCard({ script, index, onOpen, onDelete }: any) {
   return (
     <div
       ref={cardRef}
-      className="relative overflow-hidden cursor-pointer card-enter glass-noise"
+      className="relative overflow-hidden cursor-pointer card-enter"
       style={{
         borderRadius: "calc(var(--radius) + 4px)",
         ...S.floatCard(hovered),
@@ -113,14 +113,7 @@ function ScriptCard({ script, index, onOpen, onDelete }: any) {
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-28 text-center">
-      <div style={{
-        width: 64, height: 64, borderRadius: "calc(var(--radius) + 6px)",
-        display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20,
-        ...S.iconBox,
-        boxShadow: "inset 0 1px 0 var(--glass-panel-inset), 0 8px 32px color-mix(in srgb, var(--primary) 20%, transparent)",
-      }}>
-        <Mic size={26} style={{ color: "var(--primary)" }} />
-      </div>
+
       <h3 className="text-lg font-semibold text-foreground mb-2" style={{ letterSpacing: "-0.02em" }}>
         Sin guiones todavía
       </h3>

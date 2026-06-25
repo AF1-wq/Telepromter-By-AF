@@ -1,34 +1,34 @@
 import React, { useState } from "react";
-import { Zap, Sun, Moon, X } from "lucide-react";
+import { Sun, Moon, X } from "lucide-react";
 
 export const S = {
   panelGlass: {
-    backdropFilter: "blur(40px) saturate(200%)",
-    WebkitBackdropFilter: "blur(40px) saturate(200%)",
+    backdropFilter: "blur(20px) saturate(150%)",
+    WebkitBackdropFilter: "blur(20px) saturate(150%)",
     backgroundColor: "var(--glass-panel-bg)",
-    boxShadow: "0 0 0 1px var(--glass-panel-border), inset 0 1px 0 var(--glass-panel-inset), 0 24px 60px var(--glass-panel-shadow)",
+    boxShadow: "0 0 0 1px var(--glass-panel-border), inset 0 1px 0 var(--glass-panel-inset), 0 8px 24px var(--glass-panel-shadow)",
   } as React.CSSProperties,
 
   floatCard: (hovered: boolean): React.CSSProperties => ({
-    backdropFilter: "blur(24px) saturate(180%)",
-    WebkitBackdropFilter: "blur(24px) saturate(180%)",
+    backdropFilter: "blur(16px) saturate(150%)",
+    WebkitBackdropFilter: "blur(16px) saturate(150%)",
     backgroundColor: "var(--glass-float-bg)",
     boxShadow: hovered
-      ? "0 0 0 1px var(--glass-float-border), inset 0 1px 0 var(--glass-panel-inset), 0 32px 64px var(--glass-panel-shadow)"
-      : "0 0 0 1px var(--glass-float-border), inset 0 1px 0 var(--glass-panel-inset), 0 4px 20px var(--glass-panel-shadow)",
-    transition: "box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+      ? "0 0 0 1px var(--glass-float-border), inset 0 1px 0 var(--glass-panel-inset), 0 12px 32px var(--glass-panel-shadow)"
+      : "0 0 0 1px var(--glass-float-border), inset 0 1px 0 var(--glass-panel-inset), 0 4px 12px var(--glass-panel-shadow)",
+    transition: "box-shadow 0.2s ease-out, transform 0.2s ease-out",
   }),
 
   sidebar: {
-    backdropFilter: "blur(60px) saturate(220%)",
-    WebkitBackdropFilter: "blur(60px) saturate(220%)",
+    backdropFilter: "blur(24px) saturate(150%)",
+    WebkitBackdropFilter: "blur(24px) saturate(150%)",
     backgroundColor: "var(--glass-sidebar-bg)",
     borderRight: "1px solid var(--border)",
   } as React.CSSProperties,
 
   toolbar: {
-    backdropFilter: "blur(40px) saturate(200%)",
-    WebkitBackdropFilter: "blur(40px) saturate(200%)",
+    backdropFilter: "blur(24px) saturate(150%)",
+    WebkitBackdropFilter: "blur(24px) saturate(150%)",
     backgroundColor: "var(--glass-toolbar-bg)",
     borderBottom: "1px solid var(--glass-toolbar-border)",
   } as React.CSSProperties,
@@ -69,8 +69,8 @@ export const S = {
   } as React.CSSProperties,
 
   tpControls: {
-    backdropFilter: "blur(40px) saturate(160%)",
-    WebkitBackdropFilter: "blur(40px) saturate(160%)",
+    backdropFilter: "blur(24px) saturate(150%)",
+    WebkitBackdropFilter: "blur(24px) saturate(150%)",
     backgroundColor: "var(--tp-controls-bg)",
     borderTop: "1px solid var(--tp-controls-border)",
     boxShadow: "inset 0 1px 0 var(--tp-glass-inset)",
@@ -98,17 +98,7 @@ export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary 
         </div>
 
         <div className="px-4 pt-4 pb-5">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="brand-icon"
-            style={{
-              width: 30, height: 30, borderRadius: "calc(var(--radius) - 2px)", flexShrink: 0,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: "linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, var(--accent-foreground)) 100%)",
-            }}
-          >
-            <Zap size={14} style={{ color: "var(--primary-foreground)" }} fill="currentColor" />
-          </div>
+        <div className="flex items-center">
           <span className="text-sm font-semibold text-foreground" style={{ letterSpacing: "-0.02em", fontFamily: "var(--font-ui)" }}>
             Teleprompter by AF
           </span>

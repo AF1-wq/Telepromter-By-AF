@@ -366,7 +366,7 @@ export const EditorView: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto editor-scroll px-6 py-8 flex">
           <div className="max-w-2xl mx-auto flex-1 transition-all">
-            <div className="relative glass-noise" style={{ borderRadius: "calc(var(--radius) + 6px)", overflow: "hidden", ...S.panelGlass }}>
+            <div className="relative" style={{ borderRadius: "calc(var(--radius) + 6px)", overflow: "hidden", ...S.panelGlass }}>
               <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "1px solid var(--glass-toolbar-border)", background: "color-mix(in srgb, var(--glass-panel-inset) 20%, transparent)" }}>
                 <div className="flex items-center gap-0.5 ml-1">
                   {[
@@ -437,7 +437,7 @@ export const EditorView: React.FC = () => {
 
           {/* AI Sidebar */}
           {showAiSidebar && (
-            <aside className="w-80 ml-6 flex flex-col rounded-xl overflow-hidden glass-noise" style={{ ...S.panelGlass }}>
+            <aside className="w-80 ml-6 flex flex-col rounded-xl overflow-hidden" style={{ ...S.panelGlass }}>
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <h3 className="text-sm font-semibold">Chat Copilot</h3>
                 <button onClick={() => setShowAiSidebar(false)} className="text-muted-foreground hover:text-foreground">
