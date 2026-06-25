@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
-import { useReadingMode } from '../hooks/useReadingMode';
+import { useReadingMode, ReadingMode } from '../hooks/useReadingMode';
 import { useBionicMode } from '../hooks/useBionicMode';
 import { LegalModal } from './LegalModal';
 import './NavigationMenu.css';
@@ -63,7 +63,7 @@ export const NavigationMenu: React.FC = () => {
           {location.pathname.startsWith('/player') && (
             <div className="nav-section">
               <h3>Modo de Lectura</h3>
-              <select className="nav-select" value={mode} onChange={(e) => setMode(e.target.value as any)}>
+              <select className="nav-select" value={mode} onChange={(e) => setMode(e.target.value as ReadingMode)}>
                 <option value="standard">Estándar</option>
                 <option value="pro">Alto Contraste</option>
                 <option value="focus">Enfoque (Línea)</option>

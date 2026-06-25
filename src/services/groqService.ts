@@ -25,9 +25,9 @@ export const callGroqApi = async (prompt: string, systemPrompt: string = 'You ar
         max_tokens: 4000,
       })
     });
-  } catch (error) {
+  } catch (_error) {
     // Si fetch falla completamente (ej. CORS, red caída, proxy muerto)
-    throw new Error('La IA está procesando peticiones muy rápido. Por favor, espera un par de segundos y vuelve a intentar.');
+    throw new Error('La IA está procesando peticiones muy rápido. Por favor, espera un par de segundos y vuelve a intentar.', { cause: _error });
   }
 
   if (!response.ok) {

@@ -40,7 +40,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const next = prev === 'dark' ? 'light' : 'dark';
       // Apply immediately — don't wait for useEffect
       applyThemeToDOM(next);
-      try { localStorage.setItem('app-theme', next); } catch {}
+      try { localStorage.setItem('app-theme', next); } catch { /* storage unavailable */ }
       return next;
     });
   }, []);
@@ -52,6 +52,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');

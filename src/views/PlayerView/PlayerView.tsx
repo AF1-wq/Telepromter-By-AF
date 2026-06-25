@@ -42,7 +42,7 @@ export const PlayerView: React.FC = () => {
   };
 
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isPlaying) {
       interval = setInterval(() => {
         setElapsedTime(prev => prev + 1);
@@ -53,7 +53,7 @@ export const PlayerView: React.FC = () => {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
-  const wakeLockRef = useRef<any>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const pipWindowRef = useRef<Window | null>(null);
 
   // Cargar guion
@@ -61,9 +61,11 @@ export const PlayerView: React.FC = () => {
     if (id) {
       const script = getScript(id);
       if (script) {
+        /* eslint-disable react-hooks/set-state-in-effect */
         setContent(script.content);
         if (script.savedFontSize) setFontSize(script.savedFontSize);
         if (script.savedSpeed) setSpeed(script.savedSpeed);
+        /* eslint-enable react-hooks/set-state-in-effect */
       } else {
         navigate('/');
       }
@@ -91,10 +93,11 @@ export const PlayerView: React.FC = () => {
     const requestWakeLock = async () => {
       try {
         if ('wakeLock' in navigator) {
-          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen'); // eslint-disable-line @typescript-eslint/no-explicit-any
         }
-      } catch (err: any) {
-        console.log(`Wake Lock Error: ${err.name}, ${err.message}`);
+      } catch (err: unknown) {
+        const e = err as { name?: string; message?: string };
+        console.log(`Wake Lock Error: ${e.name}, ${e.message}`);
       }
     };
 
@@ -170,8 +173,10 @@ export const PlayerView: React.FC = () => {
       }, 1000);
       return () => clearTimeout(timer);
     } else {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setCountdown(null);
       setIsPlaying(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [countdown]);
 
@@ -206,6 +211,7 @@ export const PlayerView: React.FC = () => {
       window.removeEventListener('pip-play-pause-toggle', onPipPlayPause);
       window.removeEventListener('pip-restart', onPipRestart);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlayingOrCountdown]);
 
   // Handle user interaction to pause the animation
@@ -242,6 +248,7 @@ export const PlayerView: React.FC = () => {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pipWindow = await (window as any).documentPictureInPicture.requestWindow({
         width: 450,
         height: 800,
@@ -419,7 +426,8 @@ export const PlayerView: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlayingOrCountdown, navigate]); // Depend on isPlayingOrCountdown to have the correct state for PlayPause
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlayingOrCountdown, navigate]);
 
   const renderedContent = useMemo(() => {
     if (!bionicMode || !content) return { __html: content };

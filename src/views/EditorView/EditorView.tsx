@@ -12,8 +12,6 @@ import { ArrowLeft, Clock, Save, Upload, Zap, Play, Bold, Italic, Underline, Ali
 import { S, Sidebar, PrimaryButton, GhostButton, ToolbarBtn } from '../../components/ui/SharedComponents';
 import './EditorView.css'; // Mantenemos para estilos muy específicos si quedan
 
-const estimateMinutes = (text: string) =>
-  Math.ceil(text.trim().split(/\s+/).filter(Boolean).length / 130) || 0;
 
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -90,7 +88,7 @@ export const EditorView: React.FC = () => {
   const [, setContentUpdater] = useState(0);
   const initialContentRef = useRef<string>('');
   const currentContentRef = useRef<string>('');
-  const saveTimeoutRef = useRef<any>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [displayWords, setDisplayWords] = useState(0);
 
@@ -120,8 +118,10 @@ export const EditorView: React.FC = () => {
   // Initialize script
   useEffect(() => {
     if (id === 'new') {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setScriptId(Date.now().toString());
       setIsEditorReady(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
     } else if (id) {
       const existingScript = getScript(id);
       if (existingScript) {
@@ -212,8 +212,9 @@ export const EditorView: React.FC = () => {
 
       const newAiMsg: ChatMessage = { id: Date.now().toString() + 'ai', role: 'ai', content: result, isActionable: true };
       setChatMessages(prev => [...prev, newAiMsg]);
-    } catch (error: any) {
-      const errorMsg: ChatMessage = { id: Date.now().toString() + 'err', role: 'ai', content: `Error: ${error.message || 'Fallo de IA.'}` };
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Fallo de IA.';
+      const errorMsg: ChatMessage = { id: Date.now().toString() + 'err', role: 'ai', content: `Error: ${msg}` };
       setChatMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsProcessingAi(false);
@@ -224,7 +225,7 @@ export const EditorView: React.FC = () => {
     const htmlFormattedText = content.replace(/\n/g, '<br/>');
     currentContentRef.current = htmlFormattedText;
     initialContentRef.current = htmlFormattedText;
-    setContentUpdater(Date.now());
+    setContentUpdater(c => c + 1);
     setDisplayWords(wordCount(stripHtml(htmlFormattedText)));
     setIsEditorReady(false);
     setTimeout(() => setIsEditorReady(true), 10);
@@ -239,7 +240,7 @@ export const EditorView: React.FC = () => {
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          text += textContent.items.map((item: any) => item.str).join(' ') + '\n';
+          text += textContent.items.map((item: { str: string }) => item.str).join(' ') + '\n';
         }
       } else if (file.name.endsWith('.docx')) {
         const arrayBuffer = await file.arrayBuffer();
@@ -294,7 +295,7 @@ export const EditorView: React.FC = () => {
     if (!editorRef.current) return;
     const html = editorRef.current.innerHTML;
     currentContentRef.current = html;
-    setContentUpdater(Date.now());
+    setContentUpdater(c => c + 1);
     
     const wc = wordCount(stripHtml(html));
     if (wc !== displayWords) setDisplayWords(wc);
@@ -323,7 +324,8 @@ export const EditorView: React.FC = () => {
     handleInput();
   };
 
-  const mins = estimateMinutes(stripHtml(currentContentRef.current));
+  // Use displayWords state (already in sync) to estimate minutes — avoids ref read during render
+  const mins = Math.ceil(displayWords / 130) || 0;
   const scriptObj = getScript(scriptId);
 
   return (

@@ -13,8 +13,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   useEffect(() => {
     if (isOpen) {
       const storedKey = localStorage.getItem('groq_api_key') || '';
+      /* eslint-disable react-hooks/set-state-in-effect */
       setApiKey(storedKey);
       setSaved(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [isOpen]);
 

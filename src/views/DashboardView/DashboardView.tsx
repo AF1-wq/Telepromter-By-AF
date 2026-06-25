@@ -17,7 +17,9 @@ const stripHtml = (html: string) =>
 const wordCount = (text: string) =>
   text.trim().split(/\s+/).filter(Boolean).length;
 
-function ScriptCard({ script, index, onOpen, onDelete }: any) {
+interface Script { id: string; title: string; content: string; lastEdited: number; }
+
+function ScriptCard({ script, index, onOpen, onDelete }: { script: Script; index: number; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   const [hovered, setHovered] = useState(false);
   const preview = stripHtml(script.content);
   const mins = estimateMinutes(preview);
