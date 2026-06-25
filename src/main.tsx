@@ -3,7 +3,7 @@ import App from './App.tsx';
 import './styles/tailwind.css';
 import './styles/variables.css';
 import './styles/globals.css';
-import { ThemeProvider } from './hooks/useTheme.ts';
+import { ThemeProvider } from './hooks/useTheme.tsx';
 
 // Apply saved theme synchronously BEFORE first paint — eliminates flash
 (function () {
