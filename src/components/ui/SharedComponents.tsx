@@ -130,7 +130,10 @@ export function Sidebar({ dark, onToggleDark, activeView, onCreate, onGoLibrary 
         </button>
       </SidebarSection>
 
-      <div className="mt-auto px-4 pb-5">
+      <div className="mt-auto px-4 pb-5 flex flex-col gap-3">
+        <button onClick={onGoLibrary} className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors text-left" style={{ fontFamily: "var(--font-ui)" }}>
+          <X size={14} /> Salir
+        </button>
         <button onClick={() => setShowTerms(true)} className="text-[11px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors text-left" style={{ fontFamily: "var(--font-ui)" }}>
           Términos y Privacidad
         </button>

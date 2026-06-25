@@ -188,3 +188,28 @@
   mix-blend-mode: difference;
   z-index: 9999;
 }
+
+/* ── Theme Variables (Fix for white screen) ── */
+:root {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --border: #E2E8F0;
+  --primary: #0F172A;
+  --primary-foreground: #F8FAFC;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+}
+
+.dark {
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --border: #334155;
+  --primary: #F8FAFC;
+  --primary-foreground: #0F172A;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+}
