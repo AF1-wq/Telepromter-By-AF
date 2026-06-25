@@ -240,7 +240,7 @@ export const EditorView: React.FC = () => {
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          text += textContent.items.filter((item): item is { str: string } => 'str' in item).map(item => item.str).join(' ') + '\n';
+          text += textContent.items.filter(item => 'str' in item).map(item => (item as unknown as { str: string }).str).join(' ') + '\n';
         }
       } else if (file.name.endsWith('.docx')) {
         const arrayBuffer = await file.arrayBuffer();
