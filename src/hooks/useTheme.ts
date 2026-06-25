@@ -1,39 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type Theme = 'dark' | 'light';
 
+// Apply theme directly to DOM — no React re-render required
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+  root.setAttribute('data-theme', theme);
+  localStorage.setItem('app-theme', theme);
+}
+
+// Read saved theme from localStorage (SSR-safe)
+function getSavedTheme(): Theme {
+  try {
+    const saved = localStorage.getItem('app-theme') as Theme | null;
+    return saved === 'light' ? 'light' : 'dark';
+  } catch {
+    return 'dark';
+  }
+}
+
 export const useTheme = () => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('app-theme') as Theme | null;
-    return savedTheme || 'dark';
-  });
+  const [theme, setTheme] = useState<Theme>(getSavedTheme);
 
+  // Apply theme on mount and whenever it changes
   useEffect(() => {
-    const handleStorage = () => {
-      const savedTheme = localStorage.getItem('app-theme') as Theme | null;
-      if (savedTheme) setThemeState(savedTheme);
-    };
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('theme-changed', handleStorage);
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('theme-changed', handleStorage);
-    };
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setThemeState(newTheme);
-    localStorage.setItem('app-theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    window.dispatchEvent(new Event('theme-changed'));
-  };
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    applyTheme(theme);
   }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
   return { theme, toggleTheme };
 };

@@ -86,7 +86,7 @@
   background: transparent;
 }
 .editor-scroll::-webkit-scrollbar-thumb {
-  background: var(--glass-float-border);
+  background: var(--border);
   border-radius: 99px;
 }
 .editor-scroll::-webkit-scrollbar-thumb:hover {
@@ -154,15 +154,6 @@
 }
 
 
-/* ── Brand icon gradient animation ─────────────────────── */
-@keyframes brandPulse {
-  0%, 100% { box-shadow: 0 2px 10px color-mix(in srgb, var(--primary) 45%, transparent), inset 0 1px 0 var(--glass-panel-inset); }
-  50%       { box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 65%, transparent), inset 0 1px 0 var(--glass-panel-inset); }
-}
-.brand-icon {
-  animation: brandPulse 3.5s ease-in-out infinite;
-}
-
 /* ── Teleprompter reading cursor ────────────────────────── */
 .tp-cursor-dot {
   position: fixed;
@@ -175,29 +166,4 @@
   transition: transform 0.08s ease, opacity 0.2s ease;
   mix-blend-mode: difference;
   z-index: 9999;
-}
-
-/* ── Theme Variables (Fix for white screen) ── */
-:root {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --border: #E2E8F0;
-  --primary: #0F172A;
-  --primary-foreground: #F8FAFC;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-}
-
-.dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --border: #334155;
-  --primary: #F8FAFC;
-  --primary-foreground: #0F172A;
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
 }
