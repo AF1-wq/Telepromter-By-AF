@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
-import { useReadingMode, ReadingMode } from '../hooks/useReadingMode';
+import { useReadingMode } from '../hooks/useReadingMode';
+import type { ReadingMode } from '../hooks/useReadingMode';
 import { useBionicMode } from '../hooks/useBionicMode';
 import { LegalModal } from './LegalModal';
 import './NavigationMenu.css';
